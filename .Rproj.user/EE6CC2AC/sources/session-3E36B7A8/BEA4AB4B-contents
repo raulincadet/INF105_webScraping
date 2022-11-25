@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <style>
+table, th, td {
+  border:1px solid black;
+}
+code{
+  background-color: lightblue;
+}
+</style>
+    <title>Web scraping avec R</title>
+  </head>
+
+  <body>
+    <center>
+      <h1>Comment faire du web scraping avec R</h1>
+      <h2,class='author'>Raulin L. Cadet</h2>
+    </center>
+
+    <p>
+      Dans un pays où les données structurées sont peu disponibles, le web scraping peut servir aux chercheurs comme source de données. Toutefois, il est important, en faisant du web scraping de prendre en compte les considérations éthiques. Certes, les informations mises en ligne sur des sites internet sont publiques. Il faut néyant moins s'assurer que l'utilisation qui en sera faite ne porte pas atteinte à la vie privé des gens. C'est le cas, par exemple, de l'utilisation d'informations mises en ligne publiquement sur des réseaux sociaux. L'utilisation de ces informations peuvent permettre d'indiquer l'appartenance politique aussi bien que l'appartenance religieuse d'un individu, juste en considérant la liste de son réseau de contact et des messages qu'il publie. C'est pourquoi, dans de telles études, il faut s'assurer de codifier les individus et de conserver les données brutes en sécurité.
+    </p>
+    <p>
+      Pour illustrer le web scraping, nous allons extraire deux tableaux et des données non structurées sur les sites internet de la plateforme Jobpaw, de la banque centrale (Banque de la République d'Haïti), et du journal Le Nouvelliste. Afin de mieux comprendre le web scraping, c'est bien d'avoir une idée du langage HTML (Hyper Text Markup Language). En ce sens, dans le prochain paragraph, j'explique brièvement le fonctionnement du langage HTML.
+    </p>
+
+  <h2>Le langage HTML</h2>
+  <p>HTML est le langage que comprennent les navigateurs que nous utilisons sur internet. Il permet d'indiquer des balises qui vont structurer le contenu d'une page web. Les trois principaux éléments d'un fichier HTML sont: <ul>
+    <li>html: permet de baliser le contenu d'une page.</li>
+    <li>head: permet de baliser l'en-tête de la page en indiquant certaines informations dont le titre de la page.</li>
+    <li>body: balise le contenu de la page.</li>
+  </ul>
+
+  </p>
+
+  <p>
+    Une balise comporte deux partie: la balise d'ouverture et la balise de fermeture. Le contenu correspondant à une balise est noté entre la balise d'ouverture et celle de fermeture. Par exemple, pour indiquer le titre d'une page, il faut le baliser comme un élément <em>titre</em>. Alors la balise d'ouverture est <code>&lttitre&gt</code>, et celle de fermeture est <code>&lt/titre&gt</code>. Si le titre de la page est <em>Web Scraping avec R</em>, il faut le noter comme suit:
+  </p>
+<code>&lttitre&gtWeb Scraping avec R&lt/titre&gt</code>
+
+  <p>
+    La ligne de code ci-dessus constitue un élément. Il s'agit d'un élément <em>titre</em>. Cet élément contient une balise d'ouverture et une balise de fermeture. Il faut noter qu'une balise peut avoir un attribut. Ce dernier fournit une instruction supplémentaire au langage HTML. L'attribut est indiqué dans la balise d'ouverture. On verra, dans le prochain paragraphe, l'exemple d'un attribut. Le tableau ci-dessous présente une très courte liste de balises HTML.</p>
+
+  <table>
+    <tr>
+    <th>Eléments</th>
+    <th>Définition</th>
+  </tr>
+
+    <tr>
+      <td>h1 à h2</td>
+      <td>Différents niveaux d'en-tête</td>
+    </tr>
+
+    <tr>
+      <td>p</td>
+      <td>Paragraph</td>
+    </tr>
+
+      <tr>
+      <td>a</td>
+      <td>Balise un lien hypertexte. Il a un attribut du nom de <em>href</em>.</td>
+      </tr>
+
+      <tr>
+      <td>small</td>
+      <td>Texte à mettre en petit caractère</td>
+      </tr>
+
+    </tr>
+      <td>strong</td>
+      <td>Texte à mettre en gras</td>
+    </tr>
+
+  </table>
+
+  <p>
+    Suivant ce qui est indiqué dans le tableau ci-dessus la balise <code>&lta&gt</code> comporte l'attribut <em>href</em>. Cet attribut permet d'indiquer un lien hypertexte. Par exemple, pour renvoyer le lecteur à une page web, l'élément <em>a</em>, incluant son attribut <em>href</em>, sont notés comme suit:
+  </p>
+
+  <code><h2>Web scraping avec le package rvest</h2></code>
+
+  <p>
+  Les packages nécessaires pour les illustrations du web scraping sont <em>rvest</em> et <em>dplyr</em>
+  </p>
+
+<!--begin.rcode fig.width=7, fig.height=6
+library(rvest)
+library(dplyr)
+end.rcode-->
+
+
+<h3>Scraping JobPaw<h3>
+
+
+
+<!--begin.rcode
+url_jobpaw="https://www.jobpaw.com/pont/professionnels.php?id=4"   # offres d'emplois actuels
+dataread=rvest::read_html(url_jobpaw,encoding = 'utf-8')         # lecture de la page web
+tableaux=rvest::html_table(dataread)          # retrouver les tableaux de la page
+length(tableaux)                              # nombre de tableaux trouvés
+tableaux[[1]]
+tableaux[[2]]
+jobs=tableaux[[2]]                            # C'est le tableau contenant les offres d'emplois
+class(jobs)
+jobs
+end.rcode-->
+
+
+<h3>Scraping Taux de change journalier BRH</h3>
+
+<!--begin.rcode
+url_tauxJr="https://www.brh.ht/taux-du-jour/"
+dataread_brh=rvest::read_html(url_tauxJr)
+tableaux_brh=rvest::html_table(dataread_brh)
+length(tableaux_brh)
+tableaux_brh
+class(tableaux_brh)
+length(tableaux_brh)
+data.frame(tableaux_brh)
+df_brh=data.frame(tableaux_brh)
+str(df_brh)
+View(df_brh)
+end.rcode-->
+
+<h3>Scrap Le Nouvelliste</h3>
+
+<!--begin.rcode
+url_nv="https://lenouvelliste.com/"         # lien url de la page qui nous interesse
+dataread_nv=rvest::read_html(url_nv)        # lecture de la page web
+tableaux_nv=rvest::html_table(dataread_nv)  # retrouver les tableaux qui sont dans la page, s'il y en a
+length(tableaux_nv)                         # nombre de tableaux
+end.rcode-->
+
+
+<!--begin.rcode
+rvest::html_nodes(dataread_nv,'h2')  # Liste des elements h2
+rvest::html_nodes(dataread_nv,'h2') %>%html_children()  # liste des elements h2 disposant d'une autre balise
+rvest::html_nodes(dataread_nv,'h2') %>%html_text()
+rvest::html_nodes(dataread_nv,'h2') %>%html_children()%>%html_text() # Titres des articles
+rvest::html_nodes(dataread_nv,'h2') %>%html_children()%>%html_attr('href') # Les donnees de l'attribut href
+end.rcode-->
+
+
+<!--begin.rcode
+read_art1=rvest::read_html(url_art1)
+rvest::html_nodes(read_art1,'p')%>%html_text()
+rvest::html_nodes(read_art1,'p')%>%html_children()
+rvest::html_nodes(read_art1,'small')%>%html_text()
+(rvest::html_nodes(read_art1,'small')%>%html_text())
+end.rcode-->
+
+</body>
+</html>

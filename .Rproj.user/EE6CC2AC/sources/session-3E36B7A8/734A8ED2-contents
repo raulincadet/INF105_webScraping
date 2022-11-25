@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>Web scraping avec R</title>
+  </head>
+
+  <body>
+    <h1>Apprenons le Web Scraping avec R</h1>
+    <p>
+      Dans cette séance nous illustrons le web scraping avec le package rvest du langage de programmation R.
+    </p>
+
+    <p>
+      <a href="https://raulincadet.com/">Site de Raulin</a>
+    </p>
+  </body>
+</html>

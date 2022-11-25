@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+    <style>
+table, th, td {
+  border:1px solid black;
+}
+code{
+  background-color: lightblue;
+}
+</style>
+    <title>Web scraping avec R</title>
+  </head>
+
+  <body>
+    <center>
+      <h1>Comment faire du web scraping avec R</h1>
+      <h2,class='author'>Raulin L. Cadet</h2>
+    </center>
+
+    <p>
+      Dans un pays où les données structurées sont peu disponibles, le web scraping peut servir aux chercheurs comme source de données. Toutefois, il est important, en faisant du web scraping de prendre en compte les considérations éthiques. Certes, les informations mises en ligne sur des sites internet sont publiques. Il faut néyant moins s'assurer que l'utilisation qui en sera faite ne porte pas atteinte à la vie privé des gens. C'est le cas, par exemple, de l'utilisation d'informations mises en ligne publiquement sur des réseaux sociaux. L'utilisation de ces informations peuvent permettre d'indiquer l'appartenance politique aussi bien que l'appartenance religieuse d'un individu, juste en considérant la liste de son réseau de contact et des messages qu'il publie. C'est pourquoi, dans de telles études, il faut s'assurer de codifier les individus et de conserver les données brutes en sécurité.
+    </p>
+    <p>
+      Pour illustrer le web scraping, nous allons extraire deux tableaux et des données non structurées sur les sites internet de la plateforme Jobpaw, de la banque centrale (Banque de la République d'Haïti), et du journal Le Nouvelliste. Afin de mieux comprendre le web scraping, c'est bien d'avoir une idée du langage HTML (Hyper Text Markup Language). En ce sens, dans le prochain paragraph, j'explique brièvement le fonctionnement du langage HTML.
+    </p>
+
+  <h2>Le langage HTML</h2>
+  <p>HTML est le langage que comprennent les navigateurs que nous utilisons sur internet. Il permet d'indiquer des balises qui vont structurer le contenu d'une page web. Les trois principaux éléments d'un fichier HTML sont: <ul>
+    <li>html: permet de baliser le contenu d'une page.</li>
+    <li>head: permet de baliser l'en-tête de la page en indiquant certaines informations dont le titre de la page.</li>
+    <li>body: balise le contenu de la page.</li>
+  </ul>
+
+  </p>
+
+  <p>
+    Une balise comporte deux partie: la balise d'ouverture et la balise de fermeture. Le contenu correspondant à une balise est noté entre la balise d'ouverture et celle de fermeture. Par exemple, pour indiquer le titre d'une page, il faut le baliser comme un élément <em>titre</em>. Alors la balise d'ouverture est <code>&lttitre&gt</code>, et celle de fermeture est <code>&lt/titre&gt</code>. Si le titre de la page est <em>Web Scraping avec R</em>, il faut le noter comme suit:
+  </p>
+<code>&lttitre&gtWeb Scraping avec R&lt/titre&gt</code>
+
+  <p>
+    La ligne de code ci-dessus constitue un élément. Il s'agit d'un élément <em>titre</em>. Cet élément contient une balise d'ouverture et une balise de fermeture. Il faut noter qu'une balise peut avoir un attribut. Ce dernier fournit une instruction supplémentaire au langage HTML. L'attribut est indiqué dans la balise d'ouverture. On verra, dans le prochain paragraphe, l'exemple d'un attribut. Le tableau ci-dessous présente une très courte liste de balises HTML.</p>
+
+  <table>
+    <tr>
+    <th>Eléments</th>
+    <th>Définition</th>
+  </tr>
+
+    <tr>
+      <td>h1 à h2</td>
+      <td>Différents niveaux d'en-tête</td>
+    </tr>
+
+    <tr>
+      <td>p</td>
+      <td>Paragraph</td>
+    </tr>
+
+      <tr>
+      <td>a</td>
+      <td>Balise un lien hypertexte. Il a un attribut du nom de <em>href</em>.</td>
+      </tr>
+
+      <tr>
+      <td>small</td>
+      <td>Texte à mettre en petit caractère</td>
+      </tr>
+
+    </tr>
+      <td>strong</td>
+      <td>Texte à mettre en gras</td>
+    </tr>
+
+  </table>
+
+  <p>
+    Suivant ce qui est indiqué dans le tableau ci-dessus la balise <code>&lta&gt</code> comporte l'attribut <em>href</em>. Cet attribut permet d'indiquer un lien hypertexte. Par exemple, pour renvoyer le lecteur à une page web, l'élément <em>a</em>, incluant son attribut <em>href</em>, sont notés comme suit:
+  </p>
+<pre><code>h2 in range(0,23)</code></pre>
+  <code><h2>Web scraping avec le package rvest</h2></code>
+
+  <p>
+  Les packages nécessaires pour les illustrations du web scraping sont <em>rvest</em> et <em>dplyr</em>
+  </p>
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(rvest)</span>
+<span class="hl kwd">library</span><span class="hl std">(dplyr)</span>
+</pre></div>
+<div class="warning"><pre class="knitr r">## Warning: package 'dplyr' was built under R version 4.1.3
+</pre></div>
+<div class="message"><pre class="knitr r">## 
+## Attaching package: 'dplyr'
+</pre></div>
+<div class="message"><pre class="knitr r">## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+</pre></div>
+<div class="message"><pre class="knitr r">## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+</pre></div>
+</div></div>
+
+
+<h2>Scraping JobPaw<h2>
+
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">######### Scraping JobPaw  ##############</span>
+<span class="hl std">url_jobpaw</span><span class="hl kwb">=</span><span class="hl str">&quot;https://www.jobpaw.com/pont/professionnels.php?id=4&quot;</span>   <span class="hl com"># offres d'emplois actuels</span>
+<span class="hl std">dataread</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">read_html</span><span class="hl std">(url_jobpaw,</span><span class="hl kwc">encoding</span> <span class="hl std">=</span> <span class="hl str">'utf-8'</span><span class="hl std">)</span>         <span class="hl com"># lecture de la page web</span>
+<span class="hl std">tableaux</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_table</span><span class="hl std">(dataread)</span>          <span class="hl com"># retrouver les tableaux de la page</span>
+<span class="hl kwd">length</span><span class="hl std">(tableaux)</span>                              <span class="hl com"># nombre de tableaux trouvés</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 2
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">tableaux[[</span><span class="hl num">1</span><span class="hl std">]]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 7 x 2
+##   X1         X2                                                                 
+##   &lt;chr&gt;      &lt;chr&gt;                                                              
+## 1 Compagnie  &quot;-- Toutes -- A+ Services S.A.... Parole &amp; Action...10Power...13-1~
+## 2 Secteur    &quot;-- Choisir --InformelInternationalONGPrivÃ©ProjetPublicR&amp;D&quot;       
+## 3 Domaine    &quot;-- Tous --Agriculture â\u0080\u0093 AgroalimentaireArchitecture, ~
+## 4 Spécialité &quot;-- Toutes --&quot;                                                     
+## 5 Ville      &quot;-- Toutes --Port-au-PrinceCap-HaitienCayesGonaivesJeremieDelmasPe~
+## 6 Recherche  &quot;&quot;                                                                 
+## 7 Recherche  &quot;Recherche&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">tableaux[[</span><span class="hl num">2</span><span class="hl std">]]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 37 x 4
+##    Institution                     `Titre du poste`     Domaine    `Date limite`
+##    &lt;chr&gt;                           &lt;chr&gt;                &lt;chr&gt;      &lt;chr&gt;        
+##  1 DHL International S.A.          &quot;Finance Manager / ~ Managemen~ 21 Dec 22    
+##  2 Secteur projet                  &quot;Responsable de Ges~ Sciences ~ 16 Dec 22    
+##  3 Parole &amp; Action                 &quot;Directeur Financie~ Managemen~ 15 Dec 22    
+##  4 CARE Haiti                      &quot;FY-23/0228  Offici~ Sciences ~ 7 Dec 22     
+##  5 Helvetas Swiss Intercooperation &quot;Responsable Logist~ Managemen~ 7 Dec 22     
+##  6 CARE Haiti                      &quot;Mobilisateur Commu~ Sciences ~ 7 Dec 22     
+##  7 CARE Haiti                      &quot;Superviseur Terrai~ Sciences ~ 7 Dec 22     
+##  8 CARE Haiti                      &quot;Coordonnateur/tric~ SantÃ© et~ 7 Dec 22     
+##  9 CARE Haiti                      &quot;Chef de Projet&quot;     Sciences ~ 7 Dec 22     
+## 10 UniversitÃ© de Fondwa           &quot;SecrÃ©taire ExÃ©cu~ Managemen~ 4 Dec 22     
+## # ... with 27 more rows
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">jobs</span><span class="hl kwb">=</span><span class="hl std">tableaux[[</span><span class="hl num">2</span><span class="hl std">]]</span>                            <span class="hl com"># C'est le tableau contenant les offres d'emplois</span>
+<span class="hl kwd">class</span><span class="hl std">(jobs)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">jobs</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 37 x 4
+##    Institution                     `Titre du poste`     Domaine    `Date limite`
+##    &lt;chr&gt;                           &lt;chr&gt;                &lt;chr&gt;      &lt;chr&gt;        
+##  1 DHL International S.A.          &quot;Finance Manager / ~ Managemen~ 21 Dec 22    
+##  2 Secteur projet                  &quot;Responsable de Ges~ Sciences ~ 16 Dec 22    
+##  3 Parole &amp; Action                 &quot;Directeur Financie~ Managemen~ 15 Dec 22    
+##  4 CARE Haiti                      &quot;FY-23/0228  Offici~ Sciences ~ 7 Dec 22     
+##  5 Helvetas Swiss Intercooperation &quot;Responsable Logist~ Managemen~ 7 Dec 22     
+##  6 CARE Haiti                      &quot;Mobilisateur Commu~ Sciences ~ 7 Dec 22     
+##  7 CARE Haiti                      &quot;Superviseur Terrai~ Sciences ~ 7 Dec 22     
+##  8 CARE Haiti                      &quot;Coordonnateur/tric~ SantÃ© et~ 7 Dec 22     
+##  9 CARE Haiti                      &quot;Chef de Projet&quot;     Sciences ~ 7 Dec 22     
+## 10 UniversitÃ© de Fondwa           &quot;SecrÃ©taire ExÃ©cu~ Managemen~ 4 Dec 22     
+## # ... with 27 more rows
+</pre></div>
+</div></div>
+
+
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">url_jobpaw</span><span class="hl kwb">=</span><span class="hl str">&quot;https://www.jobpaw.com/pont/professionnels.php?id=4&quot;</span>   <span class="hl com"># offres d'emplois actuels</span>
+<span class="hl std">dataread</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">read_html</span><span class="hl std">(url_jobpaw,</span><span class="hl kwc">encoding</span> <span class="hl std">=</span> <span class="hl str">'utf-8'</span><span class="hl std">)</span>         <span class="hl com"># lecture de la page web</span>
+<span class="hl std">tableaux</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_table</span><span class="hl std">(dataread)</span>          <span class="hl com"># retrouver les tableaux de la page</span>
+<span class="hl kwd">length</span><span class="hl std">(tableaux)</span>                              <span class="hl com"># nombre de tableaux trouvés</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 2
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">tableaux[[</span><span class="hl num">1</span><span class="hl std">]]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 7 x 2
+##   X1         X2                                                                 
+##   &lt;chr&gt;      &lt;chr&gt;                                                              
+## 1 Compagnie  &quot;-- Toutes -- A+ Services S.A.... Parole &amp; Action...10Power...13-1~
+## 2 Secteur    &quot;-- Choisir --InformelInternationalONGPrivÃ©ProjetPublicR&amp;D&quot;       
+## 3 Domaine    &quot;-- Tous --Agriculture â\u0080\u0093 AgroalimentaireArchitecture, ~
+## 4 Spécialité &quot;-- Toutes --&quot;                                                     
+## 5 Ville      &quot;-- Toutes --Port-au-PrinceCap-HaitienCayesGonaivesJeremieDelmasPe~
+## 6 Recherche  &quot;&quot;                                                                 
+## 7 Recherche  &quot;Recherche&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">tableaux[[</span><span class="hl num">2</span><span class="hl std">]]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 37 x 4
+##    Institution                     `Titre du poste`     Domaine    `Date limite`
+##    &lt;chr&gt;                           &lt;chr&gt;                &lt;chr&gt;      &lt;chr&gt;        
+##  1 DHL International S.A.          &quot;Finance Manager / ~ Managemen~ 21 Dec 22    
+##  2 Secteur projet                  &quot;Responsable de Ges~ Sciences ~ 16 Dec 22    
+##  3 Parole &amp; Action                 &quot;Directeur Financie~ Managemen~ 15 Dec 22    
+##  4 CARE Haiti                      &quot;FY-23/0228  Offici~ Sciences ~ 7 Dec 22     
+##  5 Helvetas Swiss Intercooperation &quot;Responsable Logist~ Managemen~ 7 Dec 22     
+##  6 CARE Haiti                      &quot;Mobilisateur Commu~ Sciences ~ 7 Dec 22     
+##  7 CARE Haiti                      &quot;Superviseur Terrai~ Sciences ~ 7 Dec 22     
+##  8 CARE Haiti                      &quot;Coordonnateur/tric~ SantÃ© et~ 7 Dec 22     
+##  9 CARE Haiti                      &quot;Chef de Projet&quot;     Sciences ~ 7 Dec 22     
+## 10 UniversitÃ© de Fondwa           &quot;SecrÃ©taire ExÃ©cu~ Managemen~ 4 Dec 22     
+## # ... with 27 more rows
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">jobs</span><span class="hl kwb">=</span><span class="hl std">tableaux[[</span><span class="hl num">2</span><span class="hl std">]]</span>                            <span class="hl com"># C'est le tableau contenant les offres d'emplois</span>
+<span class="hl kwd">class</span><span class="hl std">(jobs)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">jobs</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 37 x 4
+##    Institution                     `Titre du poste`     Domaine    `Date limite`
+##    &lt;chr&gt;                           &lt;chr&gt;                &lt;chr&gt;      &lt;chr&gt;        
+##  1 DHL International S.A.          &quot;Finance Manager / ~ Managemen~ 21 Dec 22    
+##  2 Secteur projet                  &quot;Responsable de Ges~ Sciences ~ 16 Dec 22    
+##  3 Parole &amp; Action                 &quot;Directeur Financie~ Managemen~ 15 Dec 22    
+##  4 CARE Haiti                      &quot;FY-23/0228  Offici~ Sciences ~ 7 Dec 22     
+##  5 Helvetas Swiss Intercooperation &quot;Responsable Logist~ Managemen~ 7 Dec 22     
+##  6 CARE Haiti                      &quot;Mobilisateur Commu~ Sciences ~ 7 Dec 22     
+##  7 CARE Haiti                      &quot;Superviseur Terrai~ Sciences ~ 7 Dec 22     
+##  8 CARE Haiti                      &quot;Coordonnateur/tric~ SantÃ© et~ 7 Dec 22     
+##  9 CARE Haiti                      &quot;Chef de Projet&quot;     Sciences ~ 7 Dec 22     
+## 10 UniversitÃ© de Fondwa           &quot;SecrÃ©taire ExÃ©cu~ Managemen~ 4 Dec 22     
+## # ... with 27 more rows
+</pre></div>
+</div></div>
+
+
+<h3>Scraping Taux de change journalier BRH</h3>
+
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">url_tauxJr</span><span class="hl kwb">=</span><span class="hl str">&quot;https://www.brh.ht/taux-du-jour/&quot;</span>
+<span class="hl std">dataread_brh</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">read_html</span><span class="hl std">(url_tauxJr)</span>
+<span class="hl std">tableaux_brh</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_table</span><span class="hl std">(dataread_brh)</span>
+<span class="hl kwd">length</span><span class="hl std">(tableaux_brh)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 1
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">tableaux_brh</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [[1]]
+## # A tibble: 16 x 4
+##    X1                                 X2               X3               X4      
+##    &lt;chr&gt;                              &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;   
+##  1 &quot;&quot;                                 &quot;ACHATS&quot;         &quot;VENTES&quot;         &quot;SPREAD&quot;
+##  2 &quot;MARCHE INFORMEL&quot;                  &quot;137.5000&quot;       &quot;142.5000&quot;       &quot;5.0000&quot;
+##  3 &quot;Variation/jour précédent&quot;         &quot;0.18 %&quot;         &quot;0 %&quot;            &quot;-0.001~
+##  4 &quot;MARCHE BANCAIRE&quot;                  &quot;137.3984&quot;       &quot;142.2267&quot;       &quot;4.8283&quot;
+##  5 &quot;Variation/jour précédent&quot;         &quot;0.18 %&quot;         &quot;0.21 %&quot;         &quot;0.0003&quot;
+##  6 &quot;Variation/ semaine précédente&quot;    &quot;2.14 %&quot;         &quot;2.56 %&quot;         &quot;0.0042&quot;
+##  7 &quot;TAUX DE REFERENCE*&quot;               &quot;137.4390&quot;       &quot;&quot;               &quot;&quot;      
+##  8 &quot;Variation/jour précédent&quot;         &quot;0.18 %&quot;         &quot;&quot;               &quot;&quot;      
+##  9 &quot;Variation/semaine précédente&quot;     &quot;2.1 %&quot;          &quot;&quot;               &quot;&quot;      
+## 10 &quot;Variation/année précédente&quot;       &quot;39.21 %&quot;        &quot;&quot;               &quot;&quot;      
+## 11 &quot;Taux de référence (12/01/18)&quot;     &quot;98.7293&quot;        &quot;&quot;               &quot;&quot;      
+## 12 &quot;Taux Moyen d'Acquisition (T M A)&quot; &quot;&quot;               &quot;142.2267&quot;       &quot;&quot;      
+## 13 &quot;Variation/jour précédent&quot;         &quot;&quot;               &quot;0.21 %&quot;         &quot;&quot;      
+## 14 &quot;TRANSACTIONS BANCAIRES&quot;           &quot;$ 5267089.5300&quot; &quot;$ 5364969.6100&quot; &quot;&quot;      
+## 15 &quot;Variation/jour précédent&quot;         &quot;-52.9800 %&quot;     &quot;-49.8700 %&quot;     &quot;&quot;      
+## 16 &quot;Volume moyen semaine&quot;             &quot;$ 6041509.2780&quot; &quot;$ 6234534.9340&quot; &quot;&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">class</span><span class="hl std">(tableaux_brh)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] &quot;list&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">length</span><span class="hl std">(tableaux_brh)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 1
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">data.frame</span><span class="hl std">(tableaux_brh)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##                                  X1             X2             X3      X4
+## 1                                           ACHATS         VENTES  SPREAD
+## 2                   MARCHE INFORMEL       137.5000       142.5000  5.0000
+## 3          Variation/jour précédent         0.18 %            0 % -0.0018
+## 4                   MARCHE BANCAIRE       137.3984       142.2267  4.8283
+## 5          Variation/jour précédent         0.18 %         0.21 %  0.0003
+## 6     Variation/ semaine précédente         2.14 %         2.56 %  0.0042
+## 7                TAUX DE REFERENCE*       137.4390                       
+## 8          Variation/jour précédent         0.18 %                       
+## 9      Variation/semaine précédente          2.1 %                       
+## 10       Variation/année précédente        39.21 %                       
+## 11     Taux de référence (12/01/18)        98.7293                       
+## 12 Taux Moyen d'Acquisition (T M A)                      142.2267        
+## 13         Variation/jour précédent                        0.21 %        
+## 14           TRANSACTIONS BANCAIRES $ 5267089.5300 $ 5364969.6100        
+## 15         Variation/jour précédent     -52.9800 %     -49.8700 %        
+## 16             Volume moyen semaine $ 6041509.2780 $ 6234534.9340
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">df_brh</span><span class="hl kwb">=</span><span class="hl kwd">data.frame</span><span class="hl std">(tableaux_brh)</span>
+<span class="hl kwd">str</span><span class="hl std">(df_brh)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## 'data.frame':	16 obs. of  4 variables:
+##  $ X1: chr  &quot;&quot; &quot;MARCHE INFORMEL&quot; &quot;Variation/jour précédent&quot; &quot;MARCHE BANCAIRE&quot; ...
+##  $ X2: chr  &quot;ACHATS&quot; &quot;137.5000&quot; &quot;0.18 %&quot; &quot;137.3984&quot; ...
+##  $ X3: chr  &quot;VENTES&quot; &quot;142.5000&quot; &quot;0 %&quot; &quot;142.2267&quot; ...
+##  $ X4: chr  &quot;SPREAD&quot; &quot;5.0000&quot; &quot;-0.0018&quot; &quot;4.8283&quot; ...
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">View</span><span class="hl std">(df_brh)</span>
+</pre></div>
+</div></div>
+
+<h3>Scrap Le Nouvelliste</h3>
+
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">url_nv</span><span class="hl kwb">=</span><span class="hl str">&quot;https://lenouvelliste.com/&quot;</span>         <span class="hl com"># lien url de la page qui nous interesse</span>
+<span class="hl std">dataread_nv</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">read_html</span><span class="hl std">(url_nv)</span>        <span class="hl com"># lecture de la page web</span>
+<span class="hl std">tableaux_nv</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_table</span><span class="hl std">(dataread_nv)</span>  <span class="hl com"># retrouver les tableaux qui sont dans la page, s'il y en a</span>
+<span class="hl kwd">length</span><span class="hl std">(tableaux_nv)</span>                         <span class="hl com"># nombre de tableaux</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 0
+</pre></div>
+</div></div>
+
+
+<div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(dataread_nv,</span><span class="hl str">'h2'</span><span class="hl std">)</span>  <span class="hl com"># Liste des elements h2</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## {xml_nodeset (17)}
+##  [1] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239127/jean-joseph-lebru ...
+##  [2] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239136/plus-de-11-000-ca ...
+##  [3] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239139/les-etats-unis-de ...
+##  [4] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239080/je-me-souviens-de ...
+##  [5] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239141/selon-lancien-pm- ...
+##  [6] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239142/lent-retour-a-la- ...
+##  [7] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239128/letat-haitien-na- ...
+##  [8] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239121/la-republique-dom ...
+##  [9] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239138/mondial-lallemagn ...
+## [10] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239115/mondial-largentin ...
+## [11] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239134/la-fermeture-des- ...
+## [12] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239137/cholera-la-cooper ...
+## [13] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239140/violence-basee-su ...
+## [14] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239123/mondial-les-bleus ...
+## [15] &lt;h2&gt; &lt;a href=&quot;https://lenouvelliste.com/article/239104/ce-quil-faut-savo ...
+## [16] &lt;h2&gt;Login&lt;/h2&gt;
+## [17] &lt;h2&gt;Sign up&lt;/h2&gt;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(dataread_nv,</span><span class="hl str">'h2'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span><span class="hl kwd">html_children</span><span class="hl std">()</span>  <span class="hl com"># liste des elements h2 disposant d'une autre balise</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## {xml_nodeset (15)}
+##  [1] &lt;a href=&quot;https://lenouvelliste.com/article/239127/jean-joseph-lebrun-pre ...
+##  [2] &lt;a href=&quot;https://lenouvelliste.com/article/239136/plus-de-11-000-cas-sus ...
+##  [3] &lt;a href=&quot;https://lenouvelliste.com/article/239139/les-etats-unis-degaine ...
+##  [4] &lt;a href=&quot;https://lenouvelliste.com/article/239080/je-me-souviens-de-mari ...
+##  [5] &lt;a href=&quot;https://lenouvelliste.com/article/239141/selon-lancien-pm-laure ...
+##  [6] &lt;a href=&quot;https://lenouvelliste.com/article/239142/lent-retour-a-la-norma ...
+##  [7] &lt;a href=&quot;https://lenouvelliste.com/article/239128/letat-haitien-na-jamai ...
+##  [8] &lt;a href=&quot;https://lenouvelliste.com/article/239121/la-republique-dominica ...
+##  [9] &lt;a href=&quot;https://lenouvelliste.com/article/239138/mondial-lallemagne-def ...
+## [10] &lt;a href=&quot;https://lenouvelliste.com/article/239115/mondial-largentine-de- ...
+## [11] &lt;a href=&quot;https://lenouvelliste.com/article/239134/la-fermeture-des-march ...
+## [12] &lt;a href=&quot;https://lenouvelliste.com/article/239137/cholera-la-cooperation ...
+## [13] &lt;a href=&quot;https://lenouvelliste.com/article/239140/violence-basee-sur-le- ...
+## [14] &lt;a href=&quot;https://lenouvelliste.com/article/239123/mondial-les-bleus-entr ...
+## [15] &lt;a href=&quot;https://lenouvelliste.com/article/239104/ce-quil-faut-savoir-su ...
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(dataread_nv,</span><span class="hl str">'h2'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span><span class="hl kwd">html_text</span><span class="hl std">()</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  [1] &quot;  Jean Joseph Lebrun prête serment comme nouveau président de la Cour de cassation  &quot;                                                  
+##  [2] &quot;  Plus de 11 000 cas suspects de choléra en Haïti, environ 40% des cas confirmés concernent des enfants  &quot;                             
+##  [3] &quot;  Les États-Unis dégainent de lourdes sanctions contre le sucre de la République dominicaine  &quot;                                        
+##  [4] &quot;  Je me souviens de Marion Léandre comme un grand travailleur  &quot;                                                                       
+##  [5] &quot;  Selon l’ancien PM Laurent Lamothe, le Canada a été « induit en erreur » pour adopter ses sanctions  &quot;                                
+##  [6] &quot;  Lent retour à la normalité  &quot;                                                                                                        
+##  [7] &quot;  L’Etat haïtien n’a jamais porté assistance aux migrants haïtiens en difficulté en République dominicaine, selon Colette Lespinasse  &quot;
+##  [8] &quot;  « La République dominicaine devrait tomber sous les sanctions de la communauté internationale», soutient Sam Guillaume du GARR  &quot;    
+##  [9] &quot;  Mondial: l'Allemagne défie la Fifa et se fait surprendre par le Japon, l'Espagne déroule  &quot;                                          
+## [10] &quot;  Mondial: l'Argentine de Messi terrassée par d'héroïques Saoudiens  &quot;                                                                 
+## [11] &quot;  « La fermeture des marchés frontaliers aura des conséquences politiques », selon le professeur Joseph Harold Pierre  &quot;               
+## [12] &quot;  Choléra : la coopération Suisse fait don de trois tonnes de matériel à la DINEPA  &quot;                                                  
+## [13] &quot;  Violence basée sur le genre : l’AJH sensibilise des journalistes   &quot;                                                                 
+## [14] &quot;  Mondial: Les Bleus entrent en force dans le Mondial, et Giroud dans l'histoire  &quot;                                                    
+## [15] &quot;  Ce qu’il faut savoir sur les sanctions canadiennes liées à Haïti  &quot;                                                                  
+## [16] &quot;Login&quot;                                                                                                                                 
+## [17] &quot;Sign up&quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(dataread_nv,</span><span class="hl str">'h2'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span><span class="hl kwd">html_children</span><span class="hl std">()</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_text</span><span class="hl std">()</span> <span class="hl com"># Titres des articles</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  [1] &quot; Jean Joseph Lebrun prête serment comme nouveau président de la Cour de cassation &quot;                                                  
+##  [2] &quot; Plus de 11 000 cas suspects de choléra en Haïti, environ 40% des cas confirmés concernent des enfants &quot;                             
+##  [3] &quot; Les États-Unis dégainent de lourdes sanctions contre le sucre de la République dominicaine &quot;                                        
+##  [4] &quot; Je me souviens de Marion Léandre comme un grand travailleur &quot;                                                                       
+##  [5] &quot; Selon l’ancien PM Laurent Lamothe, le Canada a été « induit en erreur » pour adopter ses sanctions &quot;                                
+##  [6] &quot; Lent retour à la normalité &quot;                                                                                                        
+##  [7] &quot; L’Etat haïtien n’a jamais porté assistance aux migrants haïtiens en difficulté en République dominicaine, selon Colette Lespinasse &quot;
+##  [8] &quot; « La République dominicaine devrait tomber sous les sanctions de la communauté internationale», soutient Sam Guillaume du GARR &quot;    
+##  [9] &quot; Mondial: l'Allemagne défie la Fifa et se fait surprendre par le Japon, l'Espagne déroule &quot;                                          
+## [10] &quot; Mondial: l'Argentine de Messi terrassée par d'héroïques Saoudiens &quot;                                                                 
+## [11] &quot; « La fermeture des marchés frontaliers aura des conséquences politiques », selon le professeur Joseph Harold Pierre &quot;               
+## [12] &quot; Choléra : la coopération Suisse fait don de trois tonnes de matériel à la DINEPA &quot;                                                  
+## [13] &quot; Violence basée sur le genre : l’AJH sensibilise des journalistes  &quot;                                                                 
+## [14] &quot; Mondial: Les Bleus entrent en force dans le Mondial, et Giroud dans l'histoire &quot;                                                    
+## [15] &quot; Ce qu’il faut savoir sur les sanctions canadiennes liées à Haïti &quot;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(dataread_nv,</span><span class="hl str">'h2'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span><span class="hl kwd">html_children</span><span class="hl std">()</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_attr</span><span class="hl std">(</span><span class="hl str">'href'</span><span class="hl std">)</span> <span class="hl com"># Les donnees de l'attribut href</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  [1] &quot;https://lenouvelliste.com/article/239127/jean-joseph-lebrun-prete-serment-comme-nouveau-president-de-la-cour-de-cassation&quot;                                               
+##  [2] &quot;https://lenouvelliste.com/article/239136/plus-de-11-000-cas-suspects-de-cholera-en-haiti-environ-40-des-cas-confirmes-concernent-des-enfants&quot;                            
+##  [3] &quot;https://lenouvelliste.com/article/239139/les-etats-unis-degainent-de-lourdes-sanctions-contre-le-sucre-de-la-republique-dominicaine&quot;                                     
+##  [4] &quot;https://lenouvelliste.com/article/239080/je-me-souviens-de-marion-leandre-comme-un-grand-travailleur&quot;                                                                    
+##  [5] &quot;https://lenouvelliste.com/article/239141/selon-lancien-pm-laurent-lamothe-le-canada-a-ete-induit-en-erreur-pour-adopter-ses-sanctions&quot;                                   
+##  [6] &quot;https://lenouvelliste.com/article/239142/lent-retour-a-la-normalite&quot;                                                                                                     
+##  [7] &quot;https://lenouvelliste.com/article/239128/letat-haitien-na-jamais-porte-assistance-aux-migrants-haitiens-en-difficulte-en-republique-dominicaine-selon-colette-lespinasse&quot;
+##  [8] &quot;https://lenouvelliste.com/article/239121/la-republique-dominicaine-devrait-tomber-sous-les-sanctions-de-la-communaute-internationale-soutient-sam-guillaume-du-garr&quot;     
+##  [9] &quot;https://lenouvelliste.com/article/239138/mondial-lallemagne-defie-la-fifa-et-se-fait-surprendre-par-le-japon-lespagne-deroule&quot;                                           
+## [10] &quot;https://lenouvelliste.com/article/239115/mondial-largentine-de-messi-terrassee-par-dheroiques-saoudiens&quot;                                                                 
+## [11] &quot;https://lenouvelliste.com/article/239134/la-fermeture-des-marches-frontaliers-aura-des-consequences-politiques-selon-le-professeur-joseph-harold-pierre&quot;                 
+## [12] &quot;https://lenouvelliste.com/article/239137/cholera-la-cooperation-suisse-fait-don-de-trois-tonnes-de-materiel-a-la-dinepa&quot;                                                 
+## [13] &quot;https://lenouvelliste.com/article/239140/violence-basee-sur-le-genre-lajh-sensibilise-des-journalistes&quot;                                                                  
+## [14] &quot;https://lenouvelliste.com/article/239123/mondial-les-bleus-entrent-en-force-dans-le-mondial-et-giroud-dans-lhistoire&quot;                                                    
+## [15] &quot;https://lenouvelliste.com/article/239104/ce-quil-faut-savoir-sur-les-sanctions-canadiennes-liees-a-haiti&quot;
+</pre></div>
+</div></div>
+
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">read_art1</span><span class="hl kwb">=</span><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">read_html</span><span class="hl std">(url_art1)</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in rvest::read_html(url_art1): object 'url_art1' not found
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(read_art1,</span><span class="hl str">'p'</span><span class="hl std">)</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_text</span><span class="hl std">()</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in html_elements(...): object 'read_art1' not found
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(read_art1,</span><span class="hl str">'p'</span><span class="hl std">)</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_children</span><span class="hl std">()</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in html_elements(...): object 'read_art1' not found
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(read_art1,</span><span class="hl str">'small'</span><span class="hl std">)</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_text</span><span class="hl std">()</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in html_elements(...): object 'read_art1' not found
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">(rvest</span><span class="hl opt">::</span><span class="hl kwd">html_nodes</span><span class="hl std">(read_art1,</span><span class="hl str">'small'</span><span class="hl std">)</span><span class="hl opt">%&gt;%</span><span class="hl kwd">html_text</span><span class="hl std">())</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in html_elements(...): object 'read_art1' not found
+</pre></div>
+</div></div>
+
+</body>
+</html>
