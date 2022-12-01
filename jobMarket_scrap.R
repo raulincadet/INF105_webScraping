@@ -1,0 +1,40 @@
+library(rvest)
+library(dplyr)
+library(ggplot2)
+
+######### Scraping JobPaw  ##############
+url_jobpaw="https://www.jobpaw.com/pont/professionnels.php?id=4"   # offres d'emplois actuels
+dataread=rvest::read_html(url_jobpaw)#,encoding = 'UTF-8')         # lecture de la page web
+tableaux=rvest::html_table(dataread)          # retrouver les tableaux de la page
+jobs=tableaux[[2]]                            # C'est le tableau contenant les offres d'emplois
+#######################################
+
+df_offres=function(){
+  url_jobpaw="https://www.jobpaw.com/pont/professionnels.php?id=4"   # offres d'emplois actuels
+  dataread=rvest::read_html(url_jobpaw)#,encoding = 'UTF-8')         # lecture de la page web
+  tableaux=rvest::html_table(dataread)          # retrouver les tableaux de la page
+  jobs=tableaux[[2]]                            # C'est le tableau contenant les offres d'emplois
+
+  y=NULL
+  p=0
+  while (p<=60) {
+    url_passes="https://www.jobpaw.com/pont/professionnels.php?pageNum_RS_job=0&id=55"
+    ###############
+    url_debut="https://www.jobpaw.com/pont/professionnels.php?pageNum_RS_job="
+    url_fin="&id=55"
+
+    url=paste(url_debut,toString(p),url_fin,sep='')
+    dataread=rvest::read_html(url_jobpaw)#,encoding = 'UTF-8')         # lecture de la page web
+    tableaux=rvest::html_table(dataread)          # retrouver les tableaux de la page
+    jobs=do.call(rbind,list(jobs,tableaux[[2]]))
+    p=p+1
+  }
+  return(jobs)
+}
+df_jobs=df_offres()
+
+##########################################
+#### Domaines
+df_jobs%>%group_by(Domaine)%>%count()%>%
+  ggplot(aes(x=Domaine,y=n))+
+  geom_line(aes(x=Domaine,y=n))+theme_classic()
