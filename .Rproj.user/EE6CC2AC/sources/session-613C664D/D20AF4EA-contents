@@ -38,11 +38,7 @@ df_jobs=df_offres()
 df_jobs%>%group_by(Domaine)%>%count()%>%
   ggplot(aes(y=Domaine,x=n))+
   geom_bar(stat='identity',fill='navy')+theme_classic()
-  
 
 
-#####################################33
-######
-df_jobs%>%group_by(`Titre du poste`)%>%count()
-  ggplot(aes(y=`Titre du poste`,x=n))+
-  geom_bar(stat='identity',fill='navy')+theme_classic()
+
+

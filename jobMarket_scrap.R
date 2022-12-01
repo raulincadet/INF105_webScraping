@@ -33,8 +33,12 @@ df_offres=function(){
 }
 df_jobs=df_offres()
 
-##########################################
+########################################
 #### Domaines
 df_jobs%>%group_by(Domaine)%>%count()%>%
-  ggplot(aes(x=Domaine,y=n))+
-  geom_line(aes(x=Domaine,y=n))+theme_classic()
+  ggplot(aes(y=Domaine,x=n))+
+  geom_bar(stat='identity',fill='navy')+theme_classic()
+
+
+
+
