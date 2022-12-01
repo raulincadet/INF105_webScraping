@@ -1,27 +1,26 @@
 {
-    "id": "D20AF4EA",
+    "id": "82FEFED8",
     "path": "~/Raul/GitHub/INF105_webScraping/jobMarket_scrap.R",
     "project_path": "jobMarket_scrap.R",
     "type": "r_source",
-    "hash": "2265904367",
+    "hash": "2658686119",
     "contents": "",
     "dirty": false,
-    "created": 1669862301498.0,
+    "created": 1669898568412.0,
     "source_on_save": false,
-    "relative_order": 5,
+    "relative_order": 6,
     "properties": {
-        "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "40,0",
-        "scrollLine": "33"
+        "cursorPosition": "34,0",
+        "scrollLine": "30"
     },
     "folds": "",
-    "lastKnownWriteTime": 1669868913,
+    "lastKnownWriteTime": 1669901766,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1669868913547,
+    "last_content_update": 1669901766809,
     "read_only": false,
     "read_only_alternatives": []
 }
